@@ -42,6 +42,7 @@ import (
 	"golang.org/x/net/http2"
 
 	metav1 "github.com/ericchiang/k8s/apis/meta/v1"
+	"github.com/ericchiang/k8s/kubeconfig"
 )
 
 const (
@@ -134,7 +135,7 @@ func NewClient(config *Config) (*Client, error) {
 		return newClient(config.Clusters[0].Cluster, config.AuthInfos[0].AuthInfo, namespaceDefault)
 	}
 
-	var ctx Context
+	var ctx kubeconfig.Context
 	if config.CurrentContext == "" {
 		if n := len(config.Contexts); n == 0 {
 			return nil, errors.New("no contexts provided")
@@ -160,8 +161,8 @@ func NewClient(config *Config) (*Client, error) {
 		return nil, fmt.Errorf("context doesn't have a user")
 	}
 	var (
-		user    AuthInfo
-		cluster Cluster
+		user    kubeconfig.AuthInfo
+		cluster kubeconfig.Cluster
 	)
 
 	for _, u := range config.AuthInfos {
@@ -202,11 +203,11 @@ func NewInClusterClient() (*Client, error) {
 		return nil, err
 	}
 
-	cluster := Cluster{
+	cluster := kubeconfig.Cluster{
 		Server:               "https://" + host + ":" + port,
 		CertificateAuthority: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
 	}
-	user := AuthInfo{TokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"}
+	user := kubeconfig.AuthInfo{TokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"}
 	return newClient(cluster, user, string(namespace))
 }
 
@@ -217,7 +218,7 @@ func load(filepath string, data []byte) (out []byte, err error) {
 	return data, err
 }
 
-func newClient(cluster Cluster, user AuthInfo, namespace string) (*Client, error) {
+func newClient(cluster kubeconfig.Cluster, user kubeconfig.AuthInfo, namespace string) (*Client, error) {
 	if cluster.Server == "" {
 		// NOTE: kubectl defaults to localhost:8080, but it's probably better to just
 		// be strict.

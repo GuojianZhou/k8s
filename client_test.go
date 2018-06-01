@@ -15,6 +15,7 @@ import (
 	"github.com/ericchiang/k8s"
 	corev1 "github.com/ericchiang/k8s/apis/core/v1"
 	metav1 "github.com/ericchiang/k8s/apis/meta/v1"
+	"github.com/ericchiang/k8s/kubeconfig"
 )
 
 const skipMsg = `
@@ -190,15 +191,15 @@ func TestListConfigMap(t *testing.T) {
 
 func TestDefaultNamespace(t *testing.T) {
 	c := &k8s.Config{
-		Clusters: []k8s.NamedCluster{
+		Clusters: []kubeconfig.NamedCluster{
 			{
 				Name: "local",
-				Cluster: k8s.Cluster{
+				Cluster: kubeconfig.Cluster{
 					Server: "http://localhost:8080",
 				},
 			},
 		},
-		AuthInfos: []k8s.NamedAuthInfo{
+		AuthInfos: []kubeconfig.NamedAuthInfo{
 			{
 				Name: "local",
 			},
